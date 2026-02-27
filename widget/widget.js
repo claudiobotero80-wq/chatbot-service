@@ -45,7 +45,7 @@
     '#jpw-send:disabled{opacity:.4;cursor:default}',
     '#jpw-send svg{width:18px;height:18px;fill:#fff}',
     '@keyframes jpw-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}',
-    '@media(max-width:480px){#jpw-chat{bottom:0;right:0;width:100vw;height:100vh;max-height:100vh;border-radius:0}#jpw-toggle{bottom:16px;right:16px;width:56px;height:56px}}'
+    '@media(max-width:480px){#jpw-chat{bottom:0;right:0;left:0;width:100%;height:calc(100vh - 24px);height:calc(100dvh - 24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);border-radius:16px 16px 0 0}#jpw-toggle{bottom:16px;right:16px;width:56px;height:56px}}'
   ].join('\n');
   document.head.appendChild(style);
 
