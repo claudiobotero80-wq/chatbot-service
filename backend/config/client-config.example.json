@@ -1,0 +1,15 @@
+{
+  "business_name": "La Parrilla de Don Carlos",
+  "greeting": "¡Hola! 👋 Bienvenido a La Parrilla de Don Carlos. ¿En qué podemos ayudarte?",
+  "hours": "Lunes a Viernes: 12:00 - 23:00 | Sábados y Domingos: 11:00 - 00:00",
+  "faqs": [
+    {"question": "carta|menú|menu|platos|comer", "answer": "📋 Nuestra carta incluye: asado de tira, vacío, entraña, choripán, empanadas, ensaladas y guarniciones. Consultá la carta completa en: https://laparrilla.com/menu"},
+    {"question": "reserva|reservar|mesa|lugar", "answer": "📅 Para reservar, indicanos: fecha, horario y cantidad de personas. Un encargado te confirmará en breve."},
+    {"question": "delivery|envío|envio|pedido|domicilio", "answer": "🛵 Hacemos delivery en un radio de 5km. Pedido mínimo $5.000. Tiempo estimado: 30-45 minutos."},
+    {"question": "precio|costo|cuánto|cuanto|vale", "answer": "💰 Los precios varían según el plato. Consultá la carta actualizada en: https://laparrilla.com/menu"},
+    {"question": "ubicación|ubicacion|dirección|direccion|donde|dónde|llegar", "answer": "📍 Estamos en Av. Corrientes 1234, CABA. A 2 cuadras del subte B - Estación Callao."},
+    {"question": "pago|tarjeta|efectivo|mercadopago|transferencia", "answer": "💳 Aceptamos: efectivo, tarjetas de crédito/débito, Mercado Pago y transferencia bancaria."}
+  ],
+  "handoff_message": "🙋 Te voy a derivar con un humano de nuestro equipo. En breve te atienden. ¡Gracias por la paciencia!",
+  "fallback_message": "🤔 Disculpá, no entendí tu consulta. Podés preguntar sobre: menú, reservas, delivery, horarios, ubicación o pagos. Si preferís hablar con una persona, escribí 'hablar con alguien'."
+}

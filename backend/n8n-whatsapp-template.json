@@ -1,0 +1,56 @@
+{
+  "name": "WhatsApp Chatbot Template v1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-entry",
+      "name": "Webhook - WhatsApp Entry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.item.json.body || $input.item.json;\nif (body.entry) {\n  const entry = body.entry[0];\n  const changes = entry.changes[0];\n  const message = changes.value.messages ? changes.value.messages[0] : null;\n  if (message) {\n    return [{json: {from: message.from, text: (message.text && message.text.body) || '', messageId: message.id, timestamp: message.timestamp, type: message.type, raw: body}}];\n  }\n}\nif (body.Body !== undefined) {\n  return [{json: {from: body.From || body.WaId || '', text: body.Body || '', messageId: body.MessageSid || '', timestamp: new Date().toISOString(), type: 'text', raw: body}}];\n}\nreturn [{json: {from: body.from || body.phone || body.sender || '', text: body.text || body.message || body.body || '', messageId: body.id || body.messageId || '', timestamp: body.timestamp || new Date().toISOString(), type: body.type || 'text', raw: body}}];"
+      },
+      "id": "parse-message",
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// CONFIGURATION: Replace this object with your client's config\n// Or load from external file: const config = JSON.parse(require('fs').readFileSync('/data/config/client-config.json', 'utf8'));\nconst config = {\n  \"business_name\": \"La Parrilla de Don Carlos\",\n  \"greeting\": \"¡Hola! 👋 Bienvenido a La Parrilla de Don Carlos. ¿En qué podemos ayudarte?\",\n  \"hours\": \"Lunes a Viernes: 12:00 - 23:00 | Sábados y Domingos: 11:00 - 00:00\",\n  \"faqs\": [\n    {\"question\": \"carta|menú|menu|platos|comer\", \"answer\": \"📋 Nuestra carta incluye asado, vacío, entraña, choripán, empanadas. Carta completa: https://laparrilla.com/menu\"},\n    {\"question\": \"reserva|reservar|mesa|lugar\", \"answer\": \"📅 Para reservar indicanos fecha, horario y cantidad de personas.\"},\n    {\"question\": \"delivery|envío|envio|pedido|domicilio\", \"answer\": \"🛵 Delivery en radio de 5km. Mínimo $5.000. 30-45 min.\"},\n    {\"question\": \"precio|costo|cuánto|cuanto|vale\", \"answer\": \"💰 Carta actualizada: https://laparrilla.com/menu\"},\n    {\"question\": \"ubicación|ubicacion|dirección|direccion|donde|dónde\", \"answer\": \"📍 Av. Corrientes 1234, CABA. Subte B - Callao.\"},\n    {\"question\": \"pago|tarjeta|efectivo|mercadopago\", \"answer\": \"💳 Efectivo, tarjetas, Mercado Pago y transferencia.\"}\n  ],\n  \"handoff_message\": \"🙋 Te derivo con un humano. En breve te atienden.\",\n  \"fallback_message\": \"🤔 No entendí. Preguntá sobre: menú, reservas, delivery, horarios, ubicación o pagos. Para hablar con alguien escribí 'hablar con alguien'.\"\n};\n\nconst text = $input.item.json.text.toLowerCase().trim();\nlet intent = 'fallback';\nlet response = config.fallback_message;\n\nconst greetings = ['hola','buenas','buen día','buen dia','buenos días','buenos dias','hey','hi','hello','qué tal','que tal'];\nif (greetings.some(g => text.includes(g))) { intent = 'greeting'; response = config.greeting; }\n\nconst hoursKw = ['horario','hora','abierto','cerrado','abren','cierran','atienden','horarios'];\nif (intent === 'fallback' && hoursKw.some(k => text.includes(k))) { intent = 'hours'; response = '🕐 Nuestros horarios: ' + config.hours; }\n\nconst handoffKw = ['humano','persona','hablar con','operador','agente','alguien','ayuda real'];\nif (intent === 'fallback' && handoffKw.some(k => text.includes(k))) { intent = 'handoff'; response = config.handoff_message; }\n\nif (intent === 'fallback') {\n  for (const faq of config.faqs) {\n    const keywords = faq.question.split('|');\n    if (keywords.some(k => text.includes(k.toLowerCase()))) { intent = 'faq'; response = faq.answer; break; }\n  }\n}\n\nreturn [{json: {...($input.item.json), intent, response, business_name: config.business_name}}];"
+      },
+      "id": "intent-router",
+      "name": "Intent Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ to: $json.from, message: $json.response, intent: $json.intent }) }}"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [910, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - WhatsApp Entry": {"main": [[{"node": "Parse Message", "type": "main", "index": 0}]]},
+    "Parse Message": {"main": [[{"node": "Intent Router", "type": "main", "index": 0}]]},
+    "Intent Router": {"main": [[{"node": "Respond to Webhook", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"},
+  "tags": [{"name": "whatsapp"}, {"name": "chatbot"}, {"name": "template"}]
+}
