@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding Chatbot — Juan Paz Studio</title>
+  <style>
+    :root { --primary: #6C5CE7; --bg: #0f0f23; --surface: #1a1a2e; --text: #e2e8f0; --muted: #94a3b8; --accent: #4ade80; --radius: 10px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+    a { color: var(--primary); text-decoration: none; }
+
+    .top-bar { background: rgba(15,15,35,.95); backdrop-filter: blur(12px); padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .top-bar .logo { font-weight: 700; font-size: 18px; }
+    .top-bar a { color: var(--muted); font-size: 14px; }
+
+    .container { display: grid; grid-template-columns: 1fr 380px; gap: 40px; max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    @media (max-width: 860px) { .container { grid-template-columns: 1fr; } }
+
+    h1 { font-size: 1.8rem; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 15px; }
+
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    input[type="text"], input[type="color"], select, textarea { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius); color: var(--text); font-size: 15px; outline: none; transition: border-color .2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 60px; }
+    select { cursor: pointer; }
+    input[type="color"] { height: 44px; padding: 4px; cursor: pointer; }
+
+    .radio-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .radio-group label { text-transform: none; font-weight: 400; cursor: pointer; background: var(--surface); border: 1px solid rgba(255,255,255,.1); padding: 8px 18px; border-radius: 20px; font-size: 14px; color: var(--text); transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .radio-group input { display: none; }
+    .radio-group input:checked + label, .radio-group label.active { border-color: var(--primary); background: rgba(108,92,231,.15); color: #fff; }
+
+    .faq-item { display: flex; gap: 8px; margin-bottom: 8px; }
+    .faq-item input { flex: 1; }
+    .faq-item button { background: transparent; border: 1px solid rgba(255,255,255,.1); color: var(--muted); border-radius: var(--radius); width: 36px; cursor: pointer; font-size: 18px; transition: all .2s; }
+    .faq-item button:hover { border-color: #e74c3c; color: #e74c3c; }
+    #add-faq { background: rgba(108,92,231,.1); border: 1px dashed rgba(108,92,231,.4); color: var(--primary); padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-size: 14px; width: 100%; transition: all .2s; }
+    #add-faq:hover { background: rgba(108,92,231,.2); }
+
+    .btn-generate { background: var(--primary); color: #fff; border: none; padding: 14px 32px; border-radius: var(--radius); font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 12px; transition: opacity .2s; }
+    .btn-generate:hover { opacity: .85; }
+
+    /* Preview */
+    .preview-panel { position: sticky; top: 80px; }
+    .preview-label { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px; }
+    .widget-preview { width: 100%; max-width: 360px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .widget-header { padding: 18px 20px; color: #fff; display: flex; align-items: center; gap: 12px; }
+    .widget-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .widget-header-text h3 { font-size: 16px; margin: 0; }
+    .widget-header-text span { font-size: 12px; opacity: .8; }
+    .widget-body { background: #fff; padding: 20px; min-height: 220px; }
+    .widget-msg { background: #f1f1f1; color: #333; padding: 10px 14px; border-radius: 14px 14px 14px 4px; font-size: 14px; max-width: 85%; margin-bottom: 10px; line-height: 1.4; }
+    .widget-msg.bot { background: #f1f1f1; }
+    .widget-input-bar { display: flex; gap: 8px; margin-top: 16px; }
+    .widget-input-bar input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 14px; font-size: 13px; color: #333; outline: none; }
+    .widget-input-bar button { border: none; border-radius: 50%; width: 36px; height: 36px; color: #fff; cursor: default; font-size: 16px; }
+    .widget-meta { margin-top: 16px; padding: 16px; background: var(--surface); border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
+    .widget-meta p { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .widget-meta span { color: var(--text); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">⚡ Juan Paz Studio</div>
+  <a href="../">← Volver a la landing</a>
+</div>
+
+<div class="container">
+  <!-- Form -->
+  <div class="form-col">
+    <h1>Onboarding de Cliente</h1>
+    <p class="subtitle">Completá los datos del negocio para generar la configuración del chatbot.</p>
+
+    <form id="onboarding-form" autocomplete="off">
+      <div class="form-group">
+        <label>Nombre del negocio</label>
+        <input type="text" id="businessName" placeholder="Ej: Clínica Dental Sonrisa">
+      </div>
+
+      <div class="form-group">
+        <label>Rubro</label>
+        <select id="industry">
+          <option value="restaurante">🍽️ Restaurante</option>
+          <option value="clinica">🏥 Clínica</option>
+          <option value="inmobiliaria">🏠 Inmobiliaria</option>
+          <option value="otro">📦 Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Nombre del bot</label>
+        <input type="text" id="botName" placeholder="Ej: Luna, Asistente Virtual">
+      </div>
+
+      <div class="form-group">
+        <label>Horarios de atención</label>
+        <input type="text" id="hours" placeholder="Ej: Lunes a Viernes 9:00-18:00">
+      </div>
+
+      <div class="form-group">
+        <label>Tono</label>
+        <div class="radio-group">
+          <div><input type="radio" name="tone" value="formal" id="t-formal"><label for="t-formal">🎩 Formal</label></div>
+          <div><input type="radio" name="tone" value="informal" id="t-informal" checked><label for="t-informal">😊 Informal</label></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Canal</label>
+        <div class="radio-group">
+          <div><input type="radio" name="channel" value="whatsapp" id="c-wa"><label for="c-wa">📱 WhatsApp</label></div>
+          <div><input type="radio" name="channel" value="web" id="c-web" checked><label for="c-web">🌐 Web</label></div>
+          <div><input type="radio" name="channel" value="ambos" id="c-both"><label for="c-both">📱🌐 Ambos</label></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Color del widget</label>
+        <input type="color" id="widgetColor" value="#6C5CE7">
+      </div>
+
+      <div class="form-group">
+        <label>Top FAQs (hasta 5)</label>
+        <div id="faq-list">
+          <div class="faq-item"><input type="text" class="faq" placeholder="Pregunta frecuente 1"><button type="button" onclick="removeFaq(this)">×</button></div>
+        </div>
+        <button type="button" id="add-faq">+ Agregar pregunta</button>
+      </div>
+
+      <button type="submit" class="btn-generate">⬇ Generar configuración</button>
+    </form>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-panel">
+    <div class="preview-label">Preview del widget</div>
+    <div class="widget-preview">
+      <div class="widget-header" id="preview-header">
+        <div class="widget-avatar">🤖</div>
+        <div class="widget-header-text">
+          <h3 id="preview-bot-name">Asistente</h3>
+          <span>En línea</span>
+        </div>
+      </div>
+      <div class="widget-body">
+        <div class="widget-msg bot" id="preview-greeting">¡Hola! ¿En qué puedo ayudarte?</div>
+        <div class="widget-input-bar">
+          <input placeholder="Escribí tu mensaje..." disabled>
+          <button id="preview-send-btn">➤</button>
+        </div>
+      </div>
+    </div>
+    <div class="widget-meta" id="preview-meta">
+      <p>Negocio: <span id="pm-business">—</span></p>
+      <p>Rubro: <span id="pm-industry">restaurante</span></p>
+      <p>Canal: <span id="pm-channel">web</span></p>
+      <p>Tono: <span id="pm-tone">informal</span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // Live preview
+  function updatePreview() {
+    const color = $('widgetColor').value;
+    const botName = $('botName').value || 'Asistente';
+    const business = $('businessName').value || '—';
+    const industry = $('industry').value;
+    const tone = document.querySelector('input[name="tone"]:checked')?.value || 'informal';
+    const channel = document.querySelector('input[name="channel"]:checked')?.value || 'web';
+
+    $('preview-header').style.background = color;
+    $('preview-send-btn').style.background = color;
+    $('preview-bot-name').textContent = botName;
+    $('pm-business').textContent = business;
+    $('pm-industry').textContent = industry;
+    $('pm-channel').textContent = channel;
+    $('pm-tone').textContent = tone;
+
+    const greetings = {
+      formal: `Buen día. Soy ${botName} de ${business || 'nuestro negocio'}. ¿En qué puedo asistirle?`,
+      informal: `¡Hola! Soy ${botName} 👋 ¿En qué te puedo ayudar?`
+    };
+    $('preview-greeting').textContent = greetings[tone];
+  }
+
+  document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', updatePreview));
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.addEventListener('change', updatePreview));
+  updatePreview();
+
+  // FAQ management
+  $('add-faq').addEventListener('click', () => {
+    const list = $('faq-list');
+    if (list.children.length >= 5) return;
+    const div = document.createElement('div');
+    div.className = 'faq-item';
+    div.innerHTML = `<input type="text" class="faq" placeholder="Pregunta frecuente ${list.children.length + 1}"><button type="button" onclick="removeFaq(this)">×</button>`;
+    list.appendChild(div);
+  });
+
+  function removeFaq(btn) {
+    const list = $('faq-list');
+    if (list.children.length > 1) btn.parentElement.remove();
+  }
+
+  // Generate config
+  $('onboarding-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const faqs = [...document.querySelectorAll('.faq')].map(f => f.value).filter(Boolean);
+    const config = {
+      version: '1.0',
+      generatedAt: new Date().toISOString(),
+      business: {
+        name: $('businessName').value,
+        industry: $('industry').value,
+        hours: $('hours').value
+      },
+      bot: {
+        name: $('botName').value || 'Asistente',
+        tone: document.querySelector('input[name="tone"]:checked')?.value,
+        channel: document.querySelector('input[name="channel"]:checked')?.value,
+        widgetColor: $('widgetColor').value,
+        faqs: faqs
+      }
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `client-config-${(config.business.name || 'new').toLowerCase().replace(/\s+/g, '-')}.json`;
+    a.click();
+  });
+</script>
+</body>
+</html>
